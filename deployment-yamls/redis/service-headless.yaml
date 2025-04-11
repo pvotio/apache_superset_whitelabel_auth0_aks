@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: superset-redis-headless
+  namespace: apps-public
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: superset
+  annotations:
+    
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp
+      port: 6379
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: superset

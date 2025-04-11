@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: superset-init-db
+  namespace: default
+  labels:
+    app.kubernetes.io/name: superset-init
+    app.kubernetes.io/instance: superset
+    app: superset
+    release: superset
+spec:
+  template:
+    metadata:
+      name: superset-init-db
+      labels:   
+        azure.workload.identity/use: 'true'       
+    spec:
+      serviceAccountName: superset
+      securityContext:
+        runAsUser: 0
+      initContainers:
+      - name: wait-for-postgres
+        image: 'xxacrr2sjis.azurecr.io/ext-superset-dockerize:v0.20.4-dockerize'
+        imagePullPolicy: 'IfNotPresent'
+        command:
+        - /bin/sh
+        - -c
+        - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -timeout 120s
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "32Mi"
+          limits:
+            cpu: "300m"
+            memory: "128Mi"
+        envFrom:
+        - configMapRef:
+            name: 'superset-env'
+      containers:
+      - name: superset-init-db
+        image: "xxacrr2sjis.azurecr.io/xx-superset:latest"
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh","-c", ". /app/pythonpath/superset_bootstrap.sh; . /app/pythonpath/superset_init.sh"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "1500m"
+            memory: "512Mi"
+        env:
+        - name: "DB_NAME"
+          value: "superset_dev"
+        - name: "DB_USER"
+          value: "superset_dev_user"
+        envFrom:
+          - configMapRef:
+              name: superset-env
+        volumeMounts:
+          - name: superset-files
+            mountPath: "/app/pythonpath"
+            readOnly: true
+          - name: secrets-store-inline
+            mountPath: /var/run/secrets/keyvault
+            readOnly: true
+      volumes:
+        - name: superset-env
+          configMap:
+            name: superset-env
+        - name: superset-files
+          secret:
+            secretName: superset-files
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: superset-spc            
+      restartPolicy: Never

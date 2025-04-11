@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: superset
+  namespace: apps-public  
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: clients.dev.int.cloud.picardangst.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: superset-web
+            port:
+              number: 8088
+  tls:
+  - hosts:
+      - "*.dev.int.cloud.xxxxxxxxxx.com"
+    secretName: wildcard-certificate
