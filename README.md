@@ -64,7 +64,7 @@ apache_superset_whitelabel_auth0_aks/
 │   ├── setupFormatters.ts
 │   ├── HandlebarsViewer.tsx
 │   ├── python_requirements.txt
-├── kubernetes/
+├── deployment-yamls/
 │   ├── deployment-web.yaml
 │   ├── deployment-worker.yaml
 │   ├── init-job.yaml
