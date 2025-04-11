@@ -1,0 +1,57 @@
+trigger: none
+#- production
+
+name: Build Superset with XX customizations
+
+parameters:
+- name: azureServiceConnection
+  type: string
+  default: 'xx-azure-container-registry'
+
+variables:
+  dockerRegistryServiceConnection: 'xx-azure-container-registry'
+  vmImageName: 'ubuntu-latest'
+  acrName: 'xxacrr2sjis'
+  imageName: 'xx-superset'
+  supersetVersion: '5.0.0rc2'
+  buildTag: $[format('{0:yyyy}.{0:MM}{0:dd}', pipeline.startTime)]
+  buildId: $(Build.BuildId)
+pool:
+  vmImage: $(vmImageName)
+
+
+stages:
+
+- stage: Deploy
+  jobs:
+  - job: BuildSupersetContainer
+    displayName: Build Superset container
+    pool:
+      name: devops-agent-pool
+    steps:
+      - task: DockerInstaller@0
+        displayName: Install docker
+        inputs:
+          dockerVersion: 28.0.4
+          releaseType: stable
+      - checkout: self
+        clean: true
+      - task: Bash@3
+        displayName: Build, patch
+        env:
+          superset_version: '$(supersetVersion)'
+          image_name: '$(acrName).azurecr.io/$(imageName)'
+          image_tag: '$(supersetVersion)-$(buildTag).$(buildId)'
+        inputs:
+          targetType: filePath
+          filePath: './azure-devops-build.sh'
+      - task: Docker@2
+        displayName: Push superset image
+        inputs:
+          containerRegistry: $(dockerRegistryServiceConnection)
+          repository: $(imageName)
+          command: push
+          tags: |
+            latest
+            $(supersetVersion)-$(buildTag).$(buildId)
+

@@ -1,0 +1,28 @@
+<svg id="placeholder" xmlns="http://www.w3.org/2000/svg"
+               width="960" height="136" viewBox="0 0 960 136">
+    <style>
+        .dot {
+        fill: #13294b; /* Dark blue */
+        }
+    </style>
+    <!--
+        Example 3×3 dots.
+        You can tweak the cx, cy, and r values for positioning or size.
+    -->
+
+    <!-- Row 1 -->
+    <circle cx="160" cy="34"  r="12" class="dot" />
+    <circle cx="480" cy="34"  r="12" class="dot" />
+    <circle cx="800" cy="34"  r="12" class="dot" />
+
+    <!-- Row 2 -->
+    <circle cx="160" cy="68"  r="12" class="dot" />
+    <circle cx="480" cy="68"  r="12" class="dot" />
+    <circle cx="800" cy="68"  r="12" class="dot" />
+
+    <!-- Row 3 -->
+    <circle cx="160" cy="102" r="12" class="dot" />
+    <circle cx="480" cy="102" r="12" class="dot" />
+    <circle cx="800" cy="102" r="12" class="dot" />
+
+</svg>

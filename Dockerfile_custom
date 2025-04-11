@@ -1,0 +1,6 @@
+# Use the official Superset image from Docker Hub or from a specific version tag
+FROM xxacrr2sjis.azurecr.io/xx-superset-base:latest
+
+USER root
+RUN uv pip install .[postgres] .[authlib] .[pymssql] .[pyodbc] .[azure-storage-blob] .[azure-identity] .[pillow] && chmod +x /usr/bin/run-server.sh
+USER superset
