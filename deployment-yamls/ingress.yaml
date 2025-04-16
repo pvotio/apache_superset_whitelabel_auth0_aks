@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   rules:
-  - host: clients.dev.int.cloud.picardangst.com
+  - host: .xxxxxx.com
     http:
       paths:
       - path: /
@@ -19,5 +19,5 @@ spec:
               number: 8088
   tls:
   - hosts:
-      - "*.dev.int.cloud.xxxxxxxxxx.com"
+      - "*.xxxxxx.com"
     secretName: wildcard-certificate
