@@ -1,6 +1,6 @@
 #!/bin/bash
 superset_version="5.0.0rc2"
-image_name="paacrr2sjis.azurecr.io/pa-superset"
+image_name="xxxxxxxx.azurecr.io/pa-superset"
 az acr login --name paacrr2sjis
 echo "Customization directory: $(pwd)"
 base_dir="$(pwd)"
