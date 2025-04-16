@@ -1,19 +1,21 @@
 trigger: none
 #- production
 
-name: Build Superset with XX customizations
+name: Build Superset with PA customizations
 
 parameters:
 - name: azureServiceConnection
   type: string
-  default: 'xx-azure-container-registry'
+  default: 'pa-azure-container-registry'
 
 variables:
-  dockerRegistryServiceConnection: 'xx-azure-container-registry'
+  dockerRegistryServiceConnection: 'pa-azure-container-registry'
   vmImageName: 'ubuntu-latest'
-  acrName: 'xxacrr2sjis'
-  imageName: 'xx-superset'
+  acrName: 'paacrr2sjis'
+  supersetImageName: 'pa-superset'
   supersetVersion: '5.0.0rc2'
+  dockerizeImageName: 'pa-dockerize'
+  dockerizeVersion: 'v0.9.3'
   buildTag: $[format('{0:yyyy}.{0:MM}{0:dd}', pipeline.startTime)]
   buildId: $(Build.BuildId)
 pool:
@@ -25,7 +27,7 @@ stages:
 - stage: Deploy
   jobs:
   - job: BuildSupersetContainer
-    displayName: Build Superset container
+    displayName: Build Superset and Dockerize containers
     pool:
       name: devops-agent-pool
     steps:
@@ -37,21 +39,48 @@ stages:
       - checkout: self
         clean: true
       - task: Bash@3
-        displayName: Build, patch
+        displayName: Prepare build environment
         env:
           superset_version: '$(supersetVersion)'
-          image_name: '$(acrName).azurecr.io/$(imageName)'
+          image_name: '$(acrName).azurecr.io/$(supersetImageName)'
           image_tag: '$(supersetVersion)-$(buildTag).$(buildId)'
         inputs:
           targetType: filePath
-          filePath: './azure-devops-build.sh'
+          filePath: './azure-devops-prepare-env.sh'
+      - task: Bash@3
+        displayName: Build, patch superset
+        env:
+          superset_version: '$(supersetVersion)'
+          image_name: '$(acrName).azurecr.io/$(supersetImageName)'
+          image_tag: '$(supersetVersion)-$(buildTag).$(buildId)'
+        inputs:
+          targetType: filePath
+          filePath: './azure-devops-build-superset.sh'
       - task: Docker@2
         displayName: Push superset image
         inputs:
           containerRegistry: $(dockerRegistryServiceConnection)
-          repository: $(imageName)
+          repository: $(supersetImageName)
           command: push
           tags: |
             latest
             $(supersetVersion)-$(buildTag).$(buildId)
+      - task: Bash@3
+        displayName: Build, patch dockerize
+        env:
+          dockerize_version: '$(dockerizeVersion)'
+          image_name: '$(acrName).azurecr.io/$(dockerizeImageName)'
+          image_tag: '$(dockerizeVersion)-$(buildTag).$(buildId)'
+        inputs:
+          targetType: filePath
+          filePath: './azure-devops-build-dockerize.sh'
+      - task: Docker@2
+        displayName: Push dockerize image
+        inputs:
+          containerRegistry: $(dockerRegistryServiceConnection)
+          repository: $(dockerizeImageName)
+          command: push
+          tags: |
+            latest
+            $(dockerizeVersion)-$(buildTag).$(buildId)
 
