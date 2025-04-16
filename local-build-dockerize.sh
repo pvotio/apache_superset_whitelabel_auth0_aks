@@ -1,6 +1,6 @@
 #!/bin/bash
 dockerize_version="v0.9.3"
-image_name="paacrr2sjis.azurecr.io/pa-dockerize"
+image_name="xxxxxxx.azurecr.io/pa-dockerize"
 az acr login --name paacrr2sjis
 echo "Customization directory: $(pwd)"
 base_dir="$(pwd)"
