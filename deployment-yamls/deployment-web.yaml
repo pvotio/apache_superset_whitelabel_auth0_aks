@@ -25,18 +25,23 @@ spec:
     spec:
       serviceAccountName: superset
       securityContext:
-        runAsUser: 0
-#        runAsNonRoot: true
-#        runAsUser: 1000
-#        runAsGroup: 3000
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       initContainers:
       - name: wait-for-postgres
-        image: 'xxacrr2sjis.azurecr.io/ext-superset-dockerize:v0.20.4-dockerize'
-        imagePullPolicy: 'IfNotPresent'
+        image: paacrr2sjis.azurecr.io/pa-dockerize:v0.9.3-2025.0416.930
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sh
         - -c
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -timeout 120s
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
         resources:
           requests:
             cpu: "100m"
@@ -49,9 +54,15 @@ spec:
             name: superset-env
       containers:
       - name: superset
-        image: "xxacrr2sjis.azurecr.io/xx-superset:latest"
-        imagePullPolicy: Always
+        image: paacrr2sjis.azurecr.io/pa-superset:5.0.0rc2-2025.0416.930
+        imagePullPolicy: IfNotPresent
         command: ["/bin/sh","-c", ". /app/pythonpath/superset_bootstrap.sh; /usr/bin/run-server.sh"]
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
         resources:
           requests:
             cpu: "100m"
@@ -68,6 +79,8 @@ spec:
           - configMapRef:
               name: "superset-env"
         volumeMounts:
+          - name: tmp
+            mountPath: /tmp
           - name: superset-files
             mountPath: "/app/pythonpath"
             readOnly: true
@@ -106,6 +119,8 @@ spec:
           successThreshold: 1
           timeoutSeconds: 1
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: superset-env
           configMap:
             name: superset-env
@@ -118,3 +133,4 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: superset-spc            
+        
