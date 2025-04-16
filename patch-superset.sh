@@ -150,4 +150,29 @@ echo "Copying HandlebarsViewer.tsx file to 'superset/superset-frontend/plugins/p
 cp ${base_dir}/files/HandlebarsViewer.tsx "$superset_dir/superset-frontend/plugins/plugin-chart-handlebars/src/components/Handlebars/"
 
 echo "Patch requirements"
+# fix several CVEs: CVE-2024-56201, CVE-2024-56326, CVE-2025-27516
+sed -i 's/dependencies = \[/dependencies = \[\n    \"jinja2>=3.1.6\",/gI' $superset_dir/pyproject.toml;
+sed -i "s/jinja2==3.1.4/jinja2==3.1.6/gI" $superset_dir/requirements/base.txt;
+sed -i "s/jinja2==3.1.4/jinja2==3.1.6/gI" $superset_dir/requirements/development.txt;
+sed -i "s/jinja2==3.1.5/jinja2==3.1.6/gI" $superset_dir/superset/translations/requirements.txt;
+
+sed -i "s/urllib3>=1.26.18/urllib3>=1.26.19/gI" $superset_dir/requirements/base.in;
+sed -i "s/urllib3==1.26.18/urllib3==1.26.19/gI" $superset_dir/requirements/base.txt;
+sed -i "s/urllib3==1.26.18/urllib3==1.26.19/gI" $superset_dir/requirements/development.txt;
+
+# uninstall old version on base image
+sed -i "s/RUN pip install --no-cache-dir --upgrade uv/RUN pip install --no-cache-dir --upgrade uv \&\& pip uninstall setuptools -y \&\& rm -rf \/usr\/local\/lib\/python3.11\/ensurepip\/_bundled\/\*/gI" $superset_dir/Dockerfile;
+#RUN pip install --no-cache-dir --upgrade uv && pip uninstall setuptools -y && rm -rf /usr/local/lib/python3.11/ensurepip/_bundled/*
+#sed -i "s/setuptools>=40.9.0/setuptools>=75.6.0/gI" $superset_dir/pyproject.toml;
+#sed -i 's/zip_safe=False,/zip_safe=False,\n    install_requires=\[\n        \"setuptools>=75.6.0\",\n    \],/gI' $superset_dir/setup.py;
+
+sed -i 's/cryptography>=42.0.4, <44.0.0/cryptography>=44.0.1/gI' $superset_dir/pyproject.toml;
+sed -i "s/cryptography==43.0.3/cryptography==44.0.1/gI" $superset_dir/requirements/base.txt;
+sed -i "s/cryptography==43.0.3/cryptography==44.0.1/gI" $superset_dir/requirements/development.txt;
+
+sed -i "s/pyopenssl==24.2.1/pyopenssl==24.3.0/gI" $superset_dir/requirements/base.txt;
+sed -i "s/pyopenssl==24.2.1/pyopenssl==24.3.0/gI" $superset_dir/requirements/development.txt;
+
+# add additional modules
 cat ${base_dir}/files/python_requirements.txt >> $superset_dir/requirements/base.txt
+
