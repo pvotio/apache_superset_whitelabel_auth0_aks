@@ -67,11 +67,11 @@ stringData:
         "superset_role_inside_admin": ["Admin"],
     }
 
-    APP_NAME = "XXXXXXXXXXX"
+    APP_NAME = "XXXXXXXX"
     APP_ICON = "/static/assets/images/logo.svg"
     APP_ICON_WIDTH = 136
 
-    LOGO_TOOLTIP = "XX"
+    LOGO_TOOLTIP = "XXXXXXXX"
     LOGO_TARGET_PATH = '/dashboard/list'
     FAVICONS = [{"href": "/static/assets/images/favicon.svg"}]
 
@@ -168,7 +168,7 @@ stringData:
     export SS_ADMIN_PW=$(cat /var/run/secrets/keyvault/admin-secret)
     export SECRET_KEY=$SUPERSET_SECRET_KEY
 
-    env | sort
+    #env | sort
 
     #ls -l /usr/bin/*.sh
     #chmod +x /usr/bin/run-server.sh
@@ -417,3 +417,4 @@ stringData:
                     'email' : me['email'],
                     'role_keys': roles if isinstance(roles, list) else []
                 }
+
