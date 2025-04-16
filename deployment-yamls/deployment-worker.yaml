@@ -26,16 +26,24 @@ spec:
     spec:
       serviceAccountName: superset
       securityContext:
-        runAsUser: 1001
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       initContainers:
       - name: wait-for-postgres-redis
-        image: 'xxacrr2sjis.azurecr.io/ext-superset-dockerize:v0.20.4-dockerize'
+        image: paacrr2sjis.azurecr.io/pa-dockerize:v0.9.3-2025.0416.930
         imagePullPolicy: 'IfNotPresent'
         command:
         - /bin/sh
         - -c
         - dockerize -wait "tcp://$DB_HOST:$DB_PORT" -wait "tcp://$REDIS_HOST:$REDIS_PORT"
           -timeout 120s
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
         resources:
           requests:
             cpu: "100m"
@@ -47,41 +55,51 @@ spec:
         - configMapRef:
             name: superset-env
       containers:
-        - name: superset
-          image: "xxacrr2sjis.azurecr.io/xx-superset:latest"
-          imagePullPolicy: IfNotPresent
-          command: ["/bin/sh","-c", ". /app/pythonpath/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker"]
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "512Mi"
-            limits:
-              cpu: "1500m"
-              memory: "2048Mi"
-          env:
-            - name: "DB_NAME"
-              value: "superset_dev"
-            - name: "DB_USER"
-              value: "superset_dev_user"
-          envFrom:
-            - configMapRef:
-                name: "superset-env"
-          volumeMounts:
-            - name: superset-files
-              mountPath: "/app/pythonpath"
-              readOnly: true
-            - name: secrets-store-inline
-              mountPath: /var/run/secrets/keyvault
-              readOnly: true
-          livenessProbe:
-            exec:
-              command: ["/bin/sh","-c", ". /app/pythonpath/superset_bootstrap.sh; celery -A superset.tasks.celery_app:app inspect ping -d celery@$HOSTNAME"]
-            failureThreshold: 3
-            initialDelaySeconds: 120
-            periodSeconds: 60
-            successThreshold: 1
-            timeoutSeconds: 60
+      - name: superset
+        image: paacrr2sjis.azurecr.io/pa-superset:5.0.0rc2-2025.0416.930
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh","-c", ". /app/pythonpath/superset_bootstrap.sh; celery --app=superset.tasks.celery_app:app worker"]
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "512Mi"
+          limits:
+            cpu: "1500m"
+            memory: "2048Mi"
+        env:
+          - name: "DB_NAME"
+            value: "superset_dev"
+          - name: "DB_USER"
+            value: "superset_dev_user"
+        envFrom:
+          - configMapRef:
+              name: "superset-env"
+        volumeMounts:
+          - name: tmp
+            mountPath: /tmp
+          - name: superset-files
+            mountPath: "/app/pythonpath"
+            readOnly: true
+          - name: secrets-store-inline
+            mountPath: /var/run/secrets/keyvault
+            readOnly: true
+        livenessProbe:
+          exec:
+            command: ["/bin/sh","-c", ". /app/pythonpath/superset_bootstrap.sh; celery -A superset.tasks.celery_app:app inspect ping -d celery@$HOSTNAME"]
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 60
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: superset-env
           configMap:
             name: superset-env
@@ -93,4 +111,4 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: superset-spc            
+              secretProviderClass: superset-spc      
