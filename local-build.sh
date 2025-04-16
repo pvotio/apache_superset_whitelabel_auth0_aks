@@ -14,8 +14,7 @@ echo "Invoke patch-superset.sh ${base_dir} ${superset_dir}"
 source ./patch-superset.sh "${base_dir}" "${superset_dir}"
 
 echo "Build container image: ${image_name}:latest"
-#DOCKER_BUILDKIT=1 docker build -f "${superset_dir}/Dockerfile" -t "${image_name}:latest" --build-arg DEV_MODE=false "${superset_dir}"
-DOCKER_BUILDKIT=1 docker build -f "${superset_dir}/Dockerfile" -t "${image_name}-base:latest" --build-arg DEV_MODE=false "${superset_dir}"
+DOCKER_BUILDKIT=1 docker build -f "${superset_dir}/Dockerfile" -t "pa-superset-base:latest" --build-arg DEV_MODE=false "${superset_dir}"
 DOCKER_BUILDKIT=1 docker build -f "${base_dir}/Dockerfile_custom" -t "${image_name}:latest" --build-arg DEV_MODE=false "${base_dir}"
 
 docker push "${image_name}:latest"
