@@ -14,7 +14,7 @@ data:
   REDIS_USER: ""
   REDIS_DB: "1"
   REDIS_CELERY_DB: "0"
-  DB_HOST: "xx-postgres-drjnyh.postgres.database.azure.com"
+  DB_HOST: "pa-postgres-xxxxxxxxx.postgres.database.azure.com"
   DB_PORT: "5432"
   FLASK_DEBUG: "false"
   SUPERSET_ENV: production
@@ -24,14 +24,14 @@ data:
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
   
   # Reporting service
-  REPORTING_SERVICE_URL: https://nava.cloud.xxxxxxxxxx.com
+  REPORTING_SERVICE_URL: https://nava.xxxxxxxxxxx.com
   
   # Azure Blob storage
-  BLOB_STORAGE_ACCOUNT_NAME: xxstoragez5s2aq
+  BLOB_STORAGE_ACCOUNT_NAME: xxxxxxxxxxxxxxx
   BLOB_CONTAINER_NAME: inside
-  BLOB_DOWNLOAD_LINK_FQDN: documents.cloud.xxxxxxxxxx.com
+  BLOB_DOWNLOAD_LINK_FQDN: documents.xxxxxxxxxxxx.com
 
   # Auth0 variables
-  AUTH0_URL: https://auth0.clients.cloud.xxxxxxxxxx.com
-  AUTH0_API_URL: https://xxxxxxxxxxxx.eu.auth0.com
+  AUTH0_URL: https://auth0.xxxxxxxxxx.com
+  AUTH0_API_URL: https://dev-xxxxxxxxxxx.eu.auth0.com
   
